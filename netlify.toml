@@ -1,7 +1,6 @@
 [build]
   command = "npm run dev"
   publish = "dist"
-  functions = "netlify/functions"
 ```
 
 4.  Save the `netlify.toml` file.
