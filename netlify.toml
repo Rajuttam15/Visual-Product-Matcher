@@ -1,28 +1,6 @@
 [build]
-  command = "npm run dev"
+  command = "npm run build"
   publish = "dist"
-```
 
-4.  Save the `netlify.toml` file.
-
----
-
-### **Step 2: Push the Correction to GitHub**
-
-Now, we need to upload this corrected file to your GitHub repository.
-
-1.  Open your terminal in the `visual-product-matcher` folder.
-2.  Run these three commands, one after the other. Press Enter after each one.
-
-    ```bash
-    git add .
-    ```
-
-    ```bash
-    git commit -m "fix: Correct syntax in netlify.toml"
-    ```
-
-    ```bash
-    git push
-    
-
+[functions]
+  directory = "netlify/functions"
