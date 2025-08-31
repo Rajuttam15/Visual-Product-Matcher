@@ -1,45 +1,29 @@
-# This file configures Netlify for both local dev and live deployment.
 [build]
-  command = "npm run build"
+  command = "npm run dev"
   publish = "dist"
   functions = "netlify/functions"
 ```
 
-This file tells Netlify three things:
-* `command = "npm run build"`: How to build your site.
-* `publish = "dist"`: Which folder to deploy.
-* `functions = "netlify/functions"`: **Where to find your serverless function.** (This is the most important line for fixing your error).
+4.  Save the `netlify.toml` file.
 
-### **Step 2: Verify Your Local Setup**
+---
 
-Make sure these two things are still correct from the previous steps:
+### **Step 2: Push the Correction to GitHub**
 
-1.  **Function File**: Confirm you have the file `netlify/functions/imagga.js`.
-2.  **Environment File**: Confirm you have the `.env` file in your root folder with your API key inside it.
+Now, we need to upload this corrected file to your GitHub repository.
 
-### **Step 3: Test Locally with `netlify dev`**
-
-Now, we will test it locally again.
-
-1.  Open your terminal in the project folder.
-2.  Run the command:
-    ```bash
-    netlify dev
-    ```
-3.  Open the local URL it gives you (e.g., `http://localhost:8888`).
-4.  Test the file upload and URL search again.
-
-With the `netlify.toml` file in place, the `404 Not Found` error should now be gone, and your API calls should work correctly.
-
-### **Step 4: Deploy the Final Version**
-
-Once you see it working locally, you are ready to deploy.
-
-1.  **Push all changes to GitHub**. This includes your new `netlify.toml` file.
+1.  Open your terminal in the `visual-product-matcher` folder.
+2.  Run these three commands, one after the other. Press Enter after each one.
 
     ```bash
     git add .
-    git commit -m "fix: Add netlify.toml to configure functions"
+    ```
+
+    ```bash
+    git commit -m "fix: Correct syntax in netlify.toml"
+    ```
+
+    ```bash
     git push
     
 
