@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Search, Upload, Filter, Star, ExternalLink, Loader2, ImageIcon } from 'lucide-react';
 
 const VisualProductMatcher = () => {
+  // ... (all state declarations remain the same) ...
   const [uploadedImage, setUploadedImage] = useState(null);
   const [imageUrl, setImageUrl] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -12,9 +13,6 @@ const VisualProductMatcher = () => {
     sortBy: 'similarity'
   });
   const [dragOver, setDragOver] = useState(false);
-
-  // --- API Integration ---
-  const apiKey = 'YWNjXzlkNDgyNTEzYzgwNmI3MDozNTA2ZDAzMzQ3OTFkN2E1Y2RlNTk1Mzc0MWViNjgxYw==';
 
   const handleImageUpload = async (file) => {
     if (!file || !file.type.startsWith('image/')) return;
@@ -29,36 +27,25 @@ const VisualProductMatcher = () => {
     formData.append('image', file);
 
     try {
-      const uploadResponse = await fetch('/api/v2/uploads', {
+      // CORRECTED: Call the Netlify function directly
+      const uploadResponse = await fetch('/.netlify/functions/imagga?path=uploads', {
         method: 'POST',
-        headers: { 'Authorization': `Basic ${apiKey}` },
         body: formData
       });
 
-      if (!uploadResponse.ok) {
-        const errorText = await uploadResponse.text();
-        throw new Error(`Image upload failed: ${uploadResponse.status} ${uploadResponse.statusText} - ${errorText}`);
-      }
-      
       const uploadData = await uploadResponse.json();
-      if (uploadData.status && uploadData.status.type === 'error') {
-        throw new Error(uploadData.status.text || 'Image upload failed after processing.');
+      if (!uploadResponse.ok || (uploadData.status && uploadData.status.type === 'error')) {
+        throw new Error(uploadData.status?.text || uploadData.error || 'Image upload failed.');
       }
       
       const imageHash = uploadData.result.upload_id;
 
-      const searchResponse = await fetch(`/api/v2/images-similarity/fingerprints?image_upload_id=${imageHash}&limit=50`, {
-          headers: { 'Authorization': `Basic ${apiKey}` }
-      });
-
-      if (!searchResponse.ok) {
-        const errorText = await searchResponse.text();
-        throw new Error(`Similarity search failed: ${searchResponse.status} ${searchResponse.statusText} - ${errorText}`);
-      }
+      // CORRECTED: Call the Netlify function directly
+      const searchResponse = await fetch(`/.netlify/functions/imagga?path=images-similarity/fingerprints&image_upload_id=${imageHash}&limit=50`);
 
       const searchData = await searchResponse.json();
-      if (searchData.status && searchData.status.type === 'error') {
-        throw new Error(searchData.status.text || 'Similarity search failed after processing.');
+      if (!searchResponse.ok || (searchData.status && searchData.status.type === 'error')) {
+         throw new Error(searchData.status?.text || searchData.error || 'Similarity search failed.');
       }
 
       const formattedResults = searchData.result.distances.map((item, index) => ({
@@ -90,41 +77,26 @@ const VisualProductMatcher = () => {
       setUploadedImage(imageUrl);
 
       try {
-          // Step 1: Register the URL with the /uploads endpoint
-          const uploadResponse = await fetch(`/api/v2/uploads`, {
+          // CORRECTED: Call the Netlify function directly
+          const uploadResponse = await fetch(`/.netlify/functions/imagga?path=uploads`, {
               method: 'POST',
-              headers: {
-                  'Authorization': `Basic ${apiKey}`,
-                  'Content-Type': 'application/json'
-              },
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ image_url: imageUrl })
           });
 
-          if (!uploadResponse.ok) {
-            const errorText = await uploadResponse.text();
-            throw new Error(`URL processing failed: ${uploadResponse.status} ${uploadResponse.statusText} - ${errorText}`);
-          }
-          
           const uploadData = await uploadResponse.json();
-           if (uploadData.status && uploadData.status.type === 'error') {
-            throw new Error(uploadData.status.text || 'URL processing failed after submission.');
+          if (!uploadResponse.ok || (uploadData.status && uploadData.status.type === 'error')) {
+             throw new Error(uploadData.status?.text || uploadData.error || 'URL processing failed.');
           }
 
           const imageHash = uploadData.result.upload_id;
 
-          // Step 2: Use the returned upload_id for the similarity search
-          const searchResponse = await fetch(`/api/v2/images-similarity/fingerprints?image_upload_id=${imageHash}&limit=50`, {
-              headers: { 'Authorization': `Basic ${apiKey}` }
-          });
+          // CORRECTED: Call the Netlify function directly
+          const searchResponse = await fetch(`/.netlify/functions/imagga?path=images-similarity/fingerprints&image_upload_id=${imageHash}&limit=50`);
 
-          if (!searchResponse.ok) {
-            const errorText = await searchResponse.text();
-            throw new Error(`Similarity search failed: ${searchResponse.status} ${searchResponse.statusText} - ${errorText}`);
-          }
-          
           const searchData = await searchResponse.json();
-          if (searchData.status && searchData.status.type === 'error') {
-            throw new Error(searchData.status.text || 'Similarity search failed after processing.');
+          if (!searchResponse.ok || (searchData.status && searchData.status.type === 'error')) {
+            throw new Error(searchData.status?.text || searchData.error || 'Similarity search failed.');
           }
           
           const formattedResults = searchData.result.distances.map((item, index) => ({
@@ -146,7 +118,8 @@ const VisualProductMatcher = () => {
           setLoading(false);
       }
   };
-
+  
+  // ... The rest of your component's code (drag/drop, JSX, etc.) remains exactly the same ...
   const handleDragOver = (e) => { e.preventDefault(); setDragOver(true); };
   const handleDragLeave = (e) => { e.preventDefault(); setDragOver(false); };
   const handleDrop = (e) => {
@@ -165,7 +138,7 @@ const VisualProductMatcher = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-100 font-sans">
-      <div className="container mx-auto px-4 py-8">
+      <div className="px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2 tracking-tight">Visual Product Matcher</h1>
           <p className="text-lg text-gray-600">Find visually similar products by uploading an image</p>
